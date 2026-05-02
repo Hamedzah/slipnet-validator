@@ -3,19 +3,16 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 func formatConfigMessage(cfg Config) string {
 	var sb strings.Builder
 
-	// استفاده از MarkdownV2 برای قالب‌بندی بهتر در تلگرام
-	// نکته: کاراکترهای ویژه باید با \ فرار داده شوند
 	escapedURL := escapeMarkdownV2(cfg.RawURL)
 
-	// سرور و پورت (با فرض اینکه در cfg ذخیره شده باشد، در غیر این صورت می‌توان دوباره پارس کرد)
 	server, port, _ := parseSlipnetURL(cfg.RawURL)
 
-	// ایموجی‌ها: 🟢 برای فعال، 🟠 برای متوسط، 🔴 برای کند
 	latencyIcon := "🟢"
 	if cfg.Latency > 1000*time.Millisecond {
 		latencyIcon = "🟠"
@@ -35,7 +32,6 @@ func formatConfigMessage(cfg Config) string {
 	return sb.String()
 }
 
-// escapeMarkdownV2 کاراکترهای ویژه MarkdownV2 را فرار می‌دهد
 func escapeMarkdownV2(text string) string {
 	replacer := strings.NewReplacer(
 		"_", "\\_",
