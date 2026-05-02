@@ -2,8 +2,8 @@ name: SlipNet Validator
 
 on:
   schedule:
-    - cron: '0 */2 * * *'   # هر 2 ساعت یکبار
-  workflow_dispatch:         # اجرای دستی
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
 
 jobs:
   scrape:
@@ -27,8 +27,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
 
-    - name: Install dependencies
+    - name: Download dependencies
       run: go mod download
+
+    - name: Tidy dependencies (ensure go.sum)
+      run: go mod tidy
 
     - name: Run SlipNet Validator
       env:
