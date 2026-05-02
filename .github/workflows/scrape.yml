@@ -1,0 +1,45 @@
+name: SlipNet Validator
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'   # هر 2 ساعت یکبار
+  workflow_dispatch:         # اجرای دستی
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Run SlipNet Validator
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHANNELS: ${{ secrets.TELEGRAM_CHANNELS }}
+        TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+      run: go run .
+
+    - name: Upload report
+      uses: actions/upload-artifact@v4
+      with:
+        name: validation-report
+        path: report.json
+      if: always()
